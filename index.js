@@ -19,12 +19,16 @@ module.exports = function(options, fn, done){
   if( fs.existsSync(opts.output) ){
     fs.unlinkSync(opts.output);
   }
-  var ws = createWriteStream(opts.output);
+  var ws = fs.createWriteStream(opts.output);
 
   var sites = fs.readFileSync(opts.input, 'utf8');
 
   async.eachSeries(sites.split(/\r?\n/g), function(site, callback){
     try {
+      if(!site) {
+        callback();
+        return
+      }
       console.log('loading... ', site);
       jsdom.env({
         url: site,
@@ -32,7 +36,7 @@ module.exports = function(options, fn, done){
         done: function (err, window) {
           var res = fn(err, window);
           if ( res ){
-            ws.write( res + '¥n', 'utf8' );
+            ws.write( res + '\n', 'utf8' );
           }
           window.close();
           setTimeout(function(){

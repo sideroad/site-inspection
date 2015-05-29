@@ -1,15 +1,21 @@
 var assert = require("assert"),
-    site = require('../index.js');
+    site = require('../index.js'),
+    fs = require('fs');
 describe('site inspection', function(){
   describe('#basic usage', function(){
-    it('should get all results', function(){
+    it('should get all results', function(done){
 
-      site({}, function(err, window){
+      site({
+        input: 'test/site.txt',
+        output: 'test/actual.txt'
+      }, function(err, window){
         var $ = window.$;
-        return $('div').text();
+        return $('title').text();
       }, function(){
-        assert.equal(true, false);
-        console.log("finished");
+        var expected = fs.readFileSync('test/expected.txt', 'utf8');
+        var actual   = fs.readFileSync('test/actual.txt', 'utf8');
+        assert.equal(expected, actual);
+        done();
       });
 
 
